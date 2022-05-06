@@ -1,0 +1,7 @@
+.idea/
+venv/
+.pytest_cache/
+src/wmul_emailer.egg-info/
+*__pycache__
+build/
+dist/
