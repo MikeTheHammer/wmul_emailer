@@ -28,7 +28,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='wmul_emailer',
-    version='0.3.0',
+    version='0.4.1',
     license='GPLv2',
     description='E-Mailer Interface for WMUL-FM',
 
@@ -38,5 +38,12 @@ setup(
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
 
-    tests_require=["pytest", "pytest-mock"]
+    install_requires=['click'],
+
+    tests_require=["pytest", "pytest-mock"],
+
+    entry_points='''
+    [console_scripts]
+    send_test_email=wmul_emailer.cli:send_test_email
+'''
 )
