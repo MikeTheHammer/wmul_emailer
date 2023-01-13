@@ -1,9 +1,16 @@
 """
 @Author = 'Mike Stanley'
 
-Utility to send an email to multiple addresses.
+Utility to send an email to multiple addresses. Primarily intended for cli 
+applications. The various fields such as server host, username, etc. are 
+entered at the command line, used to construct a wmul_emailer.EmailSender 
+object, and that object is passed into the main part of the script. 
+The main part of the script can use it as needed to report errors or results 
+without having to worry about the e-mail details.
 
 ============ Change Log ============
+2023-Jan-13 = Added documentation.
+
 2022-May-06 = Changed License from MIT to GPLv2.
 
 2018-May-23 = Reworked API to be class based.
@@ -19,7 +26,7 @@ Utility to send an email to multiple addresses.
 2017-Jun-27 = Created.
 
 ============ License ============
-Copyright (c) 2017 Michael Stanley
+Copyright (c) 2023 Michael Stanley
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
