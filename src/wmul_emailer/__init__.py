@@ -55,8 +55,10 @@ class EmailSender:
 
     def __init__(self, server_host, port, user_name, password, from_email_address=None, destination_email_addresses=None):
         if destination_email_addresses:
-            if not (isinstance(destination_email_addresses, list) or isinstance(destination_email_addresses, tuple)):
-                raise TypeError("destination_email_addresses must be a list or tuple.")
+            if not _destination_emails_correct_type(destination_email_addresses):
+                raise TypeError("destination_email_addresses must be a list, tuple, or str.")
+            if isinstance(destination_email_addresses, str):
+                destination_email_addresses = [destination_email_addresses]
 
         self.server_host = server_host
         self.port = port
@@ -67,8 +69,10 @@ class EmailSender:
 
     def send_email(self, email_body, email_subject, from_email_address=None, destination_email_addresses=None):
         if destination_email_addresses:
-            if not isinstance(destination_email_addresses, list):
-                raise TypeError("destination_email_addresses must be a list.")
+            if not _destination_emails_correct_type(destination_email_addresses):
+                raise TypeError("destination_email_addresses must be a list, tuple, or str.")
+            if isinstance(destination_email_addresses, str):
+                destination_email_addresses = [destination_email_addresses]
         elif not self.destination_email_addresses:
             raise ValueError("destination_email_addresses must be provided to either the constructor or to the send_email function")
         else:
@@ -88,3 +92,11 @@ class EmailSender:
                 msg['From'] = from_email_address
                 msg['To'] = email_address
                 server.send_message(msg)
+
+
+def _destination_emails_correct_type(destination_email_addresses):
+    return (
+        isinstance(destination_email_addresses, list) or 
+        isinstance(destination_email_addresses, tuple) or
+        isinstance(destination_email_addresses, str)
+    )
