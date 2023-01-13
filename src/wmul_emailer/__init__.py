@@ -9,7 +9,9 @@ The main part of the script can use it as needed to report errors or results
 without having to worry about the e-mail details.
 
 ============ Change Log ============
-2023-Jan-13 = Added documentation.
+2023-Jan-13 = Added documentation. Allow caller to defer providing 
+              from_email_address and destination_email_addresses until 
+              send_email is called.
 
 2022-May-06 = Changed License from MIT to GPLv2.
 
@@ -51,9 +53,10 @@ __all__ = ["EmailSender"]
 
 class EmailSender:
 
-    def __init__(self, server_host, port, user_name, password, from_email_address, destination_email_addresses):
-        if not (isinstance(destination_email_addresses, list) or isinstance(destination_email_addresses, tuple)):
-            raise TypeError("destination_email_addresses must be a list or tuple.")
+    def __init__(self, server_host, port, user_name, password, from_email_address=None, destination_email_addresses=None):
+        if destination_email_addresses:
+            if not (isinstance(destination_email_addresses, list) or isinstance(destination_email_addresses, tuple)):
+                raise TypeError("destination_email_addresses must be a list or tuple.")
 
         self.server_host = server_host
         self.port = port
@@ -66,11 +69,16 @@ class EmailSender:
         if destination_email_addresses:
             if not isinstance(destination_email_addresses, list):
                 raise TypeError("destination_email_addresses must be a list.")
+        elif not self.destination_email_addresses:
+            raise ValueError("destination_email_addresses must be provided to either the constructor or to the send_email function")
         else:
             destination_email_addresses = self.destination_email_addresses
 
         if not from_email_address:
-            from_email_address = self.from_email_address
+            if not self.from_email_address:
+                raise ValueError("from_email_address must be provided to either the constructor or to the send_email function.")
+            else:
+                from_email_address = self.from_email_address
 
         with SMTP(self.server_host, port=self.port) as server:
             server.login(user=self.user_name, password=self.password)

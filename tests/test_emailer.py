@@ -231,3 +231,113 @@ def test_send_email_called_correctly_different_from_and_destination_address(setu
 
     mock_server.send_message.assert_has_calls(expected_send_message_calls)
     assert mock_server.send_message.call_count == len(mock_destination_email_addresses)
+
+
+def test_send_email_no_destination_email_addresses(setup_send_email, mocker):
+    mock_server, mock_smtp, mock_destination_email_addresses, mock_host, mock_port, mock_username, mock_password, \
+        mock_from_address = setup_send_email
+
+    emailer = wmul_emailer.EmailSender(
+        server_host=mock_host,
+        port=mock_port,
+        user_name=mock_username,
+        password=mock_password,
+        from_email_address=mock_from_address
+    )
+
+    def mock_mimetext_function(data):
+        mimetext_contents = {"Body": data}
+        return mimetext_contents
+
+    mock_mimetext = mocker.patch(
+        "wmul_emailer.MIMEText",
+        mocker.Mock(side_effect=mock_mimetext_function)
+    )
+
+    mock_body = "mock_body"
+    mock_subject = "mock_subject"
+
+    with pytest.raises(ValueError) as ve:
+        emailer.send_email(
+            email_body=mock_body,
+            email_subject=mock_subject
+        )
+        assert "destination_email_addresses must be provided to either the constructor or to the send_email function" in str(ve)
+
+    mock_smtp.assert_not_called()
+    mock_mimetext.assert_not_called()
+    mock_server.login.assert_not_called()
+    mock_server.send_message.assert_not_called()
+
+
+def test_send_email_no_from_email_address(setup_send_email, mocker):
+    mock_server, mock_smtp, mock_destination_email_addresses, mock_host, mock_port, mock_username, mock_password, \
+        mock_from_address = setup_send_email
+
+    emailer = wmul_emailer.EmailSender(
+        destination_email_addresses=mock_destination_email_addresses,
+        server_host=mock_host,
+        port=mock_port,
+        user_name=mock_username,
+        password=mock_password
+    )
+
+    def mock_mimetext_function(data):
+        mimetext_contents = {"Body": data}
+        return mimetext_contents
+
+    mock_mimetext = mocker.patch(
+        "wmul_emailer.MIMEText",
+        mocker.Mock(side_effect=mock_mimetext_function)
+    )
+
+    mock_body = "mock_body"
+    mock_subject = "mock_subject"
+
+    with pytest.raises(ValueError) as ve:
+        emailer.send_email(
+            email_body=mock_body,
+            email_subject=mock_subject
+        )
+        assert "from_email_address must be provided to either the constructor or to the send_email function." in str(ve)
+
+    mock_smtp.assert_not_called()
+    mock_mimetext.assert_not_called()
+    mock_server.login.assert_not_called()
+    mock_server.send_message.assert_not_called()
+
+
+def test_send_email_no_from_and_no_destination_email_address(setup_send_email, mocker):
+    mock_server, mock_smtp, mock_destination_email_addresses, mock_host, mock_port, mock_username, mock_password, \
+        mock_from_address = setup_send_email
+
+    emailer = wmul_emailer.EmailSender(
+        server_host=mock_host,
+        port=mock_port,
+        user_name=mock_username,
+        password=mock_password
+    )
+
+    def mock_mimetext_function(data):
+        mimetext_contents = {"Body": data}
+        return mimetext_contents
+
+    mock_mimetext = mocker.patch(
+        "wmul_emailer.MIMEText",
+        mocker.Mock(side_effect=mock_mimetext_function)
+    )
+
+    mock_body = "mock_body"
+    mock_subject = "mock_subject"
+
+    with pytest.raises(ValueError) as ve:
+        emailer.send_email(
+            email_body=mock_body,
+            email_subject=mock_subject
+        )
+        assert "must be provided to either the constructor or to the send_email function." in str(ve)
+
+    mock_smtp.assert_not_called()
+    mock_mimetext.assert_not_called()
+    mock_server.login.assert_not_called()
+    mock_server.send_message.assert_not_called()
