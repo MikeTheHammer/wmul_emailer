@@ -40,7 +40,7 @@ setup(
 
     install_requires=['click'],
 
-    tests_require=["pytest", "pytest-mock"],
+    tests_require=["pytest", "pytest-mock", "wmul_test_utils"],
 
     entry_points='''
     [console_scripts]
