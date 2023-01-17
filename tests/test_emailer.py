@@ -12,7 +12,7 @@
 2018-May-18 = Created.
 
 ============ License ============
-Copyright (c) 2018 Michael Stanley
+Copyright (c) 2023 Michael Stanley
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,11 +31,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import contextlib
 import pytest
 import wmul_emailer
-from wmul_test_utils import make_namedtuple
+from collections import namedtuple
+from wmul_test_utils import make_namedtuple, \
+    generate_true_false_matrix_from_namedtuple
 
 
-@pytest.fixture(scope="function")
-def setup_send_email(mocker):
+setup_send_email_options = namedtuple(
+        "setup_send_email_options",
+    [
+        "use_tuple_of_addresses"
+    ]
+)
+
+setup_send_email_params, setup_send_email_ids = \
+    generate_true_false_matrix_from_namedtuple(setup_send_email_options)
+
+@pytest.fixture(scope="function", params=setup_send_email_params, 
+                ids=setup_send_email_ids)
+def setup_send_email(mocker, request):
+    use_tuple_of_addresses = request.param.use_tuple_of_addresses
     mock_server = mocker.Mock()
 
     @contextlib.contextmanager
@@ -48,6 +62,9 @@ def setup_send_email(mocker):
     )
 
     mock_destination_email_addresses = ["foo@example.com", "bar@example.com"]
+    if use_tuple_of_addresses:
+        mock_destination_email_addresses = \
+            tuple(mock_destination_email_addresses)
     mock_host = "mock_host"
     mock_port = "mock_port"
     mock_username = "mock_username"
@@ -82,17 +99,10 @@ def test_send_email_dest_addresses_not_a_list_tuple_or_str(setup_send_email):
     setup_send_email.mock_server.assert_not_called()
 
 
-@pytest.fixture(scope="function", params=[True, False])
-def setup_send_email_correctly_created(setup_send_email, mocker, request):
-    use_tuple_of_addresses = request.param
-
-    if use_tuple_of_addresses:
-        mock_destination_email_addresses = tuple(setup_send_email.mock_destination_email_addresses)
-    else:
-        mock_destination_email_addresses = setup_send_email.mock_destination_email_addresses
-
+@pytest.fixture(scope="function")
+def setup_send_email_correctly_created(setup_send_email, mocker):
     emailer = wmul_emailer.EmailSender(
-        destination_email_addresses=mock_destination_email_addresses,
+        destination_email_addresses=setup_send_email.mock_destination_email_addresses,
         server_host=setup_send_email.mock_host,
         port=setup_send_email.mock_port,
         user_name=setup_send_email.mock_username,
