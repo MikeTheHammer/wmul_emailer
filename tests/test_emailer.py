@@ -106,8 +106,15 @@ def test_send_email_dest_addresses_not_a_list_tuple_or_str(setup_send_email):
             from_email_address=setup_send_email.mock_from_address
         )
 
-    setup_send_email.mock_smtp.assert_not_called()
-    setup_send_email.mock_server.assert_not_called()
+    confirm_mocks_not_called(setup_send_email)
+
+
+def confirm_mocks_not_called(mocks_not_called_args):
+    mocks_not_called_args.mock_smtp.assert_not_called()
+    mocks_not_called_args.mock_server.assert_not_called()
+    mocks_not_called_args.mock_mimetext.assert_not_called()
+    mocks_not_called_args.mock_server.login.assert_not_called()
+    mocks_not_called_args.mock_server.send_message.assert_not_called()
 
 
 @pytest.fixture(scope="function")
@@ -133,6 +140,7 @@ def test_send_email_called_correctly_normal_path(
         mocker, 
         setup_send_email_correctly_created
     ):
+    
     setup_send_email = setup_send_email_correctly_created.setup_send_email
 
     setup_send_email_correctly_created.emailer.send_email(
@@ -140,29 +148,52 @@ def test_send_email_called_correctly_normal_path(
         setup_send_email.mock_subject
     )
 
-    setup_send_email.mock_smtp.assert_called_once_with(
-        setup_send_email.mock_host, 
-        port=setup_send_email.mock_port
+    confirm_mocks_called_correctly(
+        make_namedtuple(
+            "correct_call_args",
+            mock_smtp=setup_send_email.mock_smtp,
+            mock_host=setup_send_email.mock_host,
+            mock_port=setup_send_email.mock_port,
+            mock_server=setup_send_email.mock_server,
+            mock_username=setup_send_email.mock_username,
+            mock_password=setup_send_email.mock_password,
+            mock_destination_email_addresses=\
+                setup_send_email.mock_destination_email_addresses,
+            mock_body=setup_send_email.mock_body,
+            mock_subject=setup_send_email.mock_subject,
+            mock_from_address=setup_send_email.mock_from_address,
+            mocker=mocker
+        )
     )
 
-    setup_send_email.mock_server.login.assert_called_once_with(
-        user=setup_send_email.mock_username, 
-        password=setup_send_email.mock_password
+
+def confirm_mocks_called_correctly(correct_call_args):
+    correct_call_args.mock_smtp.assert_called_once_with(
+        correct_call_args.mock_host, 
+        port=correct_call_args.mock_port
+    )
+
+    correct_call_args.mock_server.login.assert_called_once_with(
+        user=correct_call_args.mock_username, 
+        password=correct_call_args.mock_password
     )
 
     expected_send_message_calls = []
 
-    for this_email_address in setup_send_email.mock_destination_email_addresses:
+    for this_email_address in \
+                            correct_call_args.mock_destination_email_addresses:
         this_message = {
-            "Body": setup_send_email.mock_body,
-            "Subject": setup_send_email.mock_subject,
-            "From": setup_send_email.mock_from_address,
+            "Body": correct_call_args.mock_body,
+            "Subject": correct_call_args.mock_subject,
+            "From": correct_call_args.mock_from_address,
             "To": this_email_address
         }
-        expected_send_message_calls.append(mocker.call(this_message))
+        expected_send_message_calls.append(
+            correct_call_args.mocker.call(this_message)
+        )
 
     assert_has_only_these_calls(
-        setup_send_email.mock_server.send_message,
+        correct_call_args.mock_server.send_message,
         expected_send_message_calls
     )
 
@@ -182,31 +213,23 @@ def test_send_email_called_correctly_different_from_address(
         from_email_address=new_mock_from_address
     )
 
-    setup_send_email.mock_smtp.assert_called_once_with(
-        setup_send_email.mock_host, 
-        port=setup_send_email.mock_port
+    confirm_mocks_called_correctly(
+        make_namedtuple(
+            "correct_call_args",
+            mock_smtp=setup_send_email.mock_smtp,
+            mock_host=setup_send_email.mock_host,
+            mock_port=setup_send_email.mock_port,
+            mock_server=setup_send_email.mock_server,
+            mock_username=setup_send_email.mock_username,
+            mock_password=setup_send_email.mock_password,
+            mock_destination_email_addresses=\
+                setup_send_email.mock_destination_email_addresses,
+            mock_body=setup_send_email.mock_body,
+            mock_subject=setup_send_email.mock_subject,
+            mock_from_address=new_mock_from_address,
+            mocker=mocker
+        )
     )
-    setup_send_email.mock_server.login.assert_called_once_with(
-        user=setup_send_email.mock_username, 
-        password=setup_send_email.mock_password
-    )
-
-    expected_send_message_calls = []
-
-    for this_email_address in setup_send_email.mock_destination_email_addresses:
-        this_message = {
-            "Body": setup_send_email.mock_body,
-            "Subject": setup_send_email.mock_subject,
-            "From": new_mock_from_address,
-            "To": this_email_address
-        }
-        expected_send_message_calls.append(mocker.call(this_message))
-
-    assert_has_only_these_calls(
-        setup_send_email.mock_server.send_message,
-        expected_send_message_calls
-    )
-
 
 
 def test_send_email_called_correctly_different_destination_address(
@@ -227,30 +250,21 @@ def test_send_email_called_correctly_different_destination_address(
         destination_email_addresses=new_mock_destination_addresses
     )
 
-    setup_send_email.mock_smtp.assert_called_once_with(
-        setup_send_email.mock_host, 
-        port=setup_send_email.mock_port
-    )
-
-    setup_send_email.mock_server.login.assert_called_once_with(
-        user=setup_send_email.mock_username, 
-        password=setup_send_email.mock_password
-    )
-
-    expected_send_message_calls = []
-
-    for this_email_address in new_mock_destination_addresses:
-        this_message = {
-            "Body": setup_send_email.mock_body,
-            "Subject": setup_send_email.mock_subject,
-            "From": setup_send_email.mock_from_address,
-            "To": this_email_address
-        }
-        expected_send_message_calls.append(mocker.call(this_message))
-
-    assert_has_only_these_calls(
-        setup_send_email.mock_server.send_message,
-        expected_send_message_calls
+    confirm_mocks_called_correctly(
+        make_namedtuple(
+            "correct_call_args",
+            mock_smtp=setup_send_email.mock_smtp,
+            mock_host=setup_send_email.mock_host,
+            mock_port=setup_send_email.mock_port,
+            mock_server=setup_send_email.mock_server,
+            mock_username=setup_send_email.mock_username,
+            mock_password=setup_send_email.mock_password,
+            mock_destination_email_addresses=new_mock_destination_addresses,
+            mock_body=setup_send_email.mock_body,
+            mock_subject=setup_send_email.mock_subject,
+            mock_from_address=setup_send_email.mock_from_address,
+            mocker=mocker
+        )
     )
 
 
@@ -274,35 +288,27 @@ def test_send_email_called_correctly_different_from_and_destination_address(
         destination_email_addresses=new_mock_destination_addresses
     )
 
-    setup_send_email.mock_smtp.assert_called_once_with(
-        setup_send_email.mock_host, 
-        port=setup_send_email.mock_port
-    )
-
-    setup_send_email.mock_server.login.assert_called_once_with(
-        user=setup_send_email.mock_username, 
-        password=setup_send_email.mock_password
-    )
-
-    expected_send_message_calls = []
-
-    for this_email_address in new_mock_destination_addresses:
-        this_message = {
-            "Body": setup_send_email.mock_body,
-            "Subject": setup_send_email.mock_subject,
-            "From": new_mock_from_address,
-            "To": this_email_address
-        }
-        expected_send_message_calls.append(mocker.call(this_message))
-
-    assert_has_only_these_calls(
-        setup_send_email.mock_server.send_message,
-        expected_send_message_calls
+    confirm_mocks_called_correctly(
+        make_namedtuple(
+            "correct_call_args",
+            mock_smtp=setup_send_email.mock_smtp,
+            mock_host=setup_send_email.mock_host,
+            mock_port=setup_send_email.mock_port,
+            mock_server=setup_send_email.mock_server,
+            mock_username=setup_send_email.mock_username,
+            mock_password=setup_send_email.mock_password,
+            mock_destination_email_addresses=new_mock_destination_addresses,
+            mock_body=setup_send_email.mock_body,
+            mock_subject=setup_send_email.mock_subject,
+            mock_from_address=new_mock_from_address,
+            mocker=mocker
+        )
     )
 
 
 def test_send_email_called_correctly_str_destination_address(
-        setup_send_email_correctly_created
+        setup_send_email_correctly_created,
+        mocker
     ):
 
     setup_send_email = setup_send_email_correctly_created.setup_send_email
@@ -317,22 +323,22 @@ def test_send_email_called_correctly_str_destination_address(
         destination_email_addresses=new_mock_destination_address
     )
 
-    setup_send_email.mock_smtp.assert_called_once_with(
-        setup_send_email.mock_host, 
-        port=setup_send_email.mock_port
+    confirm_mocks_called_correctly(
+        make_namedtuple(
+            "correct_call_args",
+            mock_smtp=setup_send_email.mock_smtp,
+            mock_host=setup_send_email.mock_host,
+            mock_port=setup_send_email.mock_port,
+            mock_server=setup_send_email.mock_server,
+            mock_username=setup_send_email.mock_username,
+            mock_password=setup_send_email.mock_password,
+            mock_destination_email_addresses=[new_mock_destination_address],
+            mock_body=setup_send_email.mock_body,
+            mock_subject=setup_send_email.mock_subject,
+            mock_from_address=new_mock_from_address,
+            mocker=mocker
+        )
     )
-
-    setup_send_email.mock_server.login.assert_called_once_with(
-        user=setup_send_email.mock_username, 
-        password=setup_send_email.mock_password
-    )
-
-    setup_send_email.mock_server.send_message.assert_called_once_with({
-            "Body": setup_send_email.mock_body,
-            "Subject": setup_send_email.mock_subject,
-            "From": new_mock_from_address,
-            "To": new_mock_destination_address
-        })
 
 
 def test_send_email_no_destination_email_addresses(setup_send_email):
@@ -352,10 +358,7 @@ def test_send_email_no_destination_email_addresses(setup_send_email):
         assert "destination_email_addresses must be provided to either the " \
             "constructor or to the send_email function" in str(ve)
 
-    setup_send_email.mock_smtp.assert_not_called()
-    setup_send_email.mock_mimetext.assert_not_called()
-    setup_send_email.mock_server.login.assert_not_called()
-    setup_send_email.mock_server.send_message.assert_not_called()
+    confirm_mocks_not_called(setup_send_email)
 
 
 def test_send_email_no_from_email_address(setup_send_email):
@@ -376,10 +379,7 @@ def test_send_email_no_from_email_address(setup_send_email):
         assert "from_email_address must be provided to either the constructor "\
             "or to the send_email function." in str(ve)
 
-    setup_send_email.mock_smtp.assert_not_called()
-    setup_send_email.mock_mimetext.assert_not_called()
-    setup_send_email.mock_server.login.assert_not_called()
-    setup_send_email.mock_server.send_message.assert_not_called()
+    confirm_mocks_not_called(setup_send_email)
 
 
 def test_send_email_no_from_and_no_destination_email_address(setup_send_email):
@@ -398,7 +398,4 @@ def test_send_email_no_from_and_no_destination_email_address(setup_send_email):
         assert "must be provided to either the constructor or to the "\
             "send_email function." in str(ve)
 
-    setup_send_email.mock_smtp.assert_not_called()
-    setup_send_email.mock_mimetext.assert_not_called()
-    setup_send_email.mock_server.login.assert_not_called()
-    setup_send_email.mock_server.send_message.assert_not_called()
+    confirm_mocks_not_called(setup_send_email)
