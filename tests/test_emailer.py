@@ -31,20 +31,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import contextlib
 import pytest
 import wmul_emailer
-from collections import namedtuple
 from wmul_test_utils import make_namedtuple, \
-    generate_true_false_matrix_from_namedtuple
+    generate_true_false_matrix_from_list_of_strings
 
-
-setup_send_email_options = namedtuple(
-        "setup_send_email_options",
-    [
-        "use_tuple_of_addresses"
-    ]
-)
 
 setup_send_email_params, setup_send_email_ids = \
-    generate_true_false_matrix_from_namedtuple(setup_send_email_options)
+    generate_true_false_matrix_from_list_of_strings(
+        "setup_send_email_options", 
+        ["use_tuple_of_addresses"]
+    )
 
 @pytest.fixture(scope="function", params=setup_send_email_params, 
                 ids=setup_send_email_ids)
