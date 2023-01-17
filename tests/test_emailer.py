@@ -32,7 +32,7 @@ import contextlib
 import pytest
 import wmul_emailer
 from wmul_test_utils import make_namedtuple, \
-    generate_true_false_matrix_from_list_of_strings
+    generate_true_false_matrix_from_list_of_strings, assert_has_only_these_calls
 
 
 setup_send_email_params, setup_send_email_ids = \
@@ -111,7 +111,7 @@ def test_send_email_dest_addresses_not_a_list_tuple_or_str(setup_send_email):
 
 
 @pytest.fixture(scope="function")
-def setup_send_email_correctly_created(setup_send_email, mocker):
+def setup_send_email_correctly_created(setup_send_email):
     emailer = wmul_emailer.EmailSender(
         destination_email_addresses=\
             setup_send_email.mock_destination_email_addresses,
@@ -161,11 +161,10 @@ def test_send_email_called_correctly_normal_path(
         }
         expected_send_message_calls.append(mocker.call(this_message))
 
-    setup_send_email.mock_server.send_message.assert_has_calls(
+    assert_has_only_these_calls(
+        setup_send_email.mock_server.send_message,
         expected_send_message_calls
     )
-    assert setup_send_email.mock_server.send_message.call_count == \
-        len(setup_send_email.mock_destination_email_addresses)
 
 
 def test_send_email_called_correctly_different_from_address(
@@ -203,12 +202,11 @@ def test_send_email_called_correctly_different_from_address(
         }
         expected_send_message_calls.append(mocker.call(this_message))
 
-    setup_send_email.mock_server.send_message.assert_has_calls(
+    assert_has_only_these_calls(
+        setup_send_email.mock_server.send_message,
         expected_send_message_calls
     )
 
-    assert setup_send_email.mock_server.send_message.call_count == \
-        len(setup_send_email.mock_destination_email_addresses)
 
 
 def test_send_email_called_correctly_different_destination_address(
@@ -250,12 +248,10 @@ def test_send_email_called_correctly_different_destination_address(
         }
         expected_send_message_calls.append(mocker.call(this_message))
 
-    setup_send_email.mock_server.send_message.assert_has_calls(
+    assert_has_only_these_calls(
+        setup_send_email.mock_server.send_message,
         expected_send_message_calls
     )
-
-    assert setup_send_email.mock_server.send_message.call_count == \
-        len(setup_send_email.mock_destination_email_addresses)
 
 
 def test_send_email_called_correctly_different_from_and_destination_address(
@@ -299,11 +295,10 @@ def test_send_email_called_correctly_different_from_and_destination_address(
         }
         expected_send_message_calls.append(mocker.call(this_message))
 
-    setup_send_email.mock_server.send_message.assert_has_calls(
+    assert_has_only_these_calls(
+        setup_send_email.mock_server.send_message,
         expected_send_message_calls
     )
-    assert setup_send_email.mock_server.send_message.call_count == \
-        len(setup_send_email.mock_destination_email_addresses)
 
 
 def test_send_email_called_correctly_str_destination_address(
