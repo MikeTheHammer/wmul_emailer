@@ -51,10 +51,8 @@ def setup_send_email(mocker, request):
     def mock_server_function(host, port):
         yield mock_server
 
-    mock_smtp = mocker.patch(
-        "wmul_emailer.SMTP",
-        mocker.Mock(side_effect=mock_server_function)
-    )
+    mock_smtp = mocker.Mock(side_effect=mock_server_function)
+    mocker.patch("wmul_emailer.SMTP", mock_smtp)
 
     def mock_mimetext_function(data):
         mimetext_contents = {"Body": data}
