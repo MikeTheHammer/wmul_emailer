@@ -28,8 +28,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='wmul_emailer',
-    version='0.4.1',
-    license='GPLv2',
+    version='0.5.0',
+    license='GPLv3',
     description='E-Mailer Interface for WMUL-FM',
 
     author='Michael Stanley',
