@@ -25,7 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
-  "pytest", "pytest-mock"
+  "pytest", "pytest-mock", "wmul_test_utils"
 ]
 tox = [
   "tox"
