@@ -9,6 +9,8 @@ The main part of the script can use it as needed to report errors or results
 without having to worry about the e-mail details.
 
 ============ Change Log ============
+2023-Jan-17 = Changed License from GPLv2 to GPLv3. 
+
 2023-Jan-13 = Added documentation. Allow caller to defer providing 
               from_email_address and destination_email_addresses until 
               send_email is called.
@@ -23,26 +25,27 @@ without having to worry about the e-mail details.
 
 2017-Nov-15 = Bugfix for the destination email addresses not being a list.
 
-2017-Nov-14 = Added SendEmailArguments to encapsulate the arguments and send_email2 to consume those arguments.
+2017-Nov-14 = Added SendEmailArguments to encapsulate the arguments and 
+              send_email2 to consume those arguments.
 
 2017-Jun-27 = Created.
 
 ============ License ============
-Copyright (c) 2023 Michael Stanley
+Copyright (c) 2017-2023 Michael Stanley
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This file is part of wmul_emailer.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+wmul_emailer is free software: you can redistribute it and/or modify it under 
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 3 of the License, or (at your option) any later 
+version.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+wmul_emailer is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with 
+wmul_emailer. If not, see <https://www.gnu.org/licenses/>. 
 """
 from email.mime.text import MIMEText
 from smtplib import SMTP
