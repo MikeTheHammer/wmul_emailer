@@ -50,7 +50,7 @@ wmul_emailer. If not, see <https://www.gnu.org/licenses/>.
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 __all__ = ["EmailSender"]

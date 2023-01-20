@@ -23,6 +23,9 @@ dependencies = [
     "wmul_click_utils"
 ]
 
+[project.scripts]
+wmul_send_test_email = "wmul_emailer.cli:send_test_email"
+
 [project.optional-dependencies]
 test = [
   "pytest", "pytest-mock", "wmul_test_utils"
