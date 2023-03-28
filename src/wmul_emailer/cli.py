@@ -35,6 +35,8 @@ from wmul_click_utils import RequiredUnless
 
 @click.command()
 @click.version_option()
+@click.option("--license", is_flag=True, is_eager=True,
+              help="Display the abbreviated license information.")
 @click.option("--email", type=str, multiple=True, cls=RequiredUnless, 
               required_unless=["license"],
               help="The e-mail address to which the results should be sent.")
@@ -43,17 +45,13 @@ from wmul_click_utils import RequiredUnless
               help="The hostname or ip address of the smtp server.")
 @click.option("--port", type=int, default=25,  
               help="The port number on which the smtp server resides.")
-@click.option("--username", type=str, cls=RequiredUnless, 
-              required_unless=["license"],
+@click.option("--username", type=str,
               help="The username to authenticate with the smtp server.")
-@click.option("--password", type=str, cls=RequiredUnless, 
-              required_unless=["license"],
+@click.option("--password", type=str, 
               help="The password to authenticate with the smtp server.")
 @click.option("--from_address", type=str, cls=RequiredUnless, 
               required_unless=["license"],
               help="The 'from' e-mail address.")
-@click.option("--license", is_flag=True, 
-              help="Display the abbreviated license information.")
 def send_test_email(email, server, port, username, password, from_address, 
                     license):
     if license:
@@ -61,7 +59,8 @@ def send_test_email(email, server, port, username, password, from_address,
               "program is licensed under the GPL version 3.\nThis program "
               "comes with ABSOLUTELY NO WARRANTY. This is free software, and "
               "you are welcome to redistribute it under certain conditions; "
-              "see https://www.gnu.org/licenses/gpl-3.0.txt for details.")
+              "see https://www.gnu.org/licenses/gpl-3.0.txt for details.\n"
+              "Source Code: https://github.com/MikeTheHammer/wmul_emailer")
     else:
         emailer = wmul_emailer.EmailSender(
             server_host=server,

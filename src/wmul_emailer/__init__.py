@@ -50,7 +50,7 @@ wmul_emailer. If not, see <https://www.gnu.org/licenses/>.
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
-__version__ = "0.5.1"
+__version__ = "0.6.0"
 
 
 __all__ = ["EmailSender"]
@@ -58,7 +58,7 @@ __all__ = ["EmailSender"]
 
 class EmailSender:
 
-    def __init__(self, server_host, port, user_name, password, from_email_address=None, destination_email_addresses=None):
+    def __init__(self, server_host, port, user_name=None, password=None, from_email_address=None, destination_email_addresses=None):
         if destination_email_addresses:
             if not _destination_emails_correct_type(destination_email_addresses):
                 raise TypeError("destination_email_addresses must be a list, tuple, or str.")
@@ -90,7 +90,8 @@ class EmailSender:
                 from_email_address = self.from_email_address
 
         with SMTP(self.server_host, port=self.port) as server:
-            server.login(user=self.user_name, password=self.password)
+            if self.user_name:
+                server.login(user=self.user_name, password=self.password)
             for email_address in destination_email_addresses:
                 msg = MIMEText(email_body)
                 msg['Subject'] = email_subject
